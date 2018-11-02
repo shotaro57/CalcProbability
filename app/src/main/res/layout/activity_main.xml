@@ -11,34 +11,104 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/sumProbability"
+            android:text="debug"
+            android:textColor="#000000"
+            android:textSize="30sp"
             android:layout_width="fill_parent"
             android:layout_height="0dip"
-            android:layout_weight="1"
-            android:text="Hello"/>
+            android:layout_weight="1" />
 
         <ScrollView
             android:layout_width="fill_parent"
             android:layout_height="0dip"
             android:layout_weight="6"
-            android:layout_above="@+id/textView"
-            android:layout_below="@+id/textView3" >
+            android:layout_above="@+id/sumProbability"
+            android:layout_below="@+id/UI" >
 
             <TextView
                 android:id="@+id/textView11"
                 android:layout_width="fill_parent"
-                android:layout_height="0dip"
-                android:layout_weight="1"
+                android:layout_height="fill_parent"
+                android:textColor="#000000"
                 android:text="A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM\nN\nO\nP\nQ\nR\nS\nT\nU\nV\nW\nX\nY\nZ"/>
 
         </ScrollView>
 
-        <TextView
-            android:id="@+id/textView3"
+        <LinearLayout
+            android:id="@+id/UI"
+            android:background="@color/UIBackground"
             android:layout_width="fill_parent"
             android:layout_height="0dip"
-            android:layout_weight="3"
-            android:text="World"/>
+            android:layout_weight="4" >
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dip"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1" >
+                    <TextView
+                        android:id="@+id/tmpProbability"
+                        android:textColor="#000000"
+                        android:textSize="20sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="debug"/>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+                        <Button
+                            android:id="@+id/buttonNumeratorAdd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+" />
+                        <Button
+                            android:id="@+id/buttonDenominatorAdd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+                        <Button
+                            android:id="@+id/buttonNumeratorSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-" />
+                        <Button
+                            android:id="@+id/buttonDenominatorSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-" />
+                    </LinearLayout>
+                    <Button
+                        android:id="@+id/update"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="update" />
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:background="#000000"
+                    android:layout_width="0dip"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1" >
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
 
 
