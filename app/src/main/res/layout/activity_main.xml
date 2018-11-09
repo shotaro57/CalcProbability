@@ -13,7 +13,7 @@
         <TextView
             android:id="@+id/sumProbability"
             android:text="debug"
-            android:textColor="#000000"
+            android:textColor="#0000FF"
             android:textSize="30sp"
             android:layout_width="fill_parent"
             android:layout_height="0dip"
@@ -27,11 +27,11 @@
             android:layout_below="@+id/UI" >
 
             <TextView
-                android:id="@+id/textView11"
+                android:id="@+id/scrollTextView"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:textColor="#000000"
-                android:text="A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM\nN\nO\nP\nQ\nR\nS\nT\nU\nV\nW\nX\nY\nZ"/>
+                android:text="@string/data"/>
 
         </ScrollView>
 
@@ -50,9 +50,29 @@
                     android:layout_width="0dip"
                     android:layout_height="fill_parent"
                     android:layout_weight="1" >
+                    <Button
+                        android:id="@+id/editing"
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dip"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:text="編集" />
+                    <Button
+                        android:id="@+id/delete"
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dip"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:text="削除" />
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dip"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="2" >
                     <TextView
                         android:id="@+id/tmpProbability"
-                        android:textColor="#000000"
+                        android:textColor="#0000FF"
                         android:textSize="20sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -103,7 +123,6 @@
                     android:layout_width="0dip"
                     android:layout_height="fill_parent"
                     android:layout_weight="1" >
-
                 </LinearLayout>
 
             </LinearLayout>
