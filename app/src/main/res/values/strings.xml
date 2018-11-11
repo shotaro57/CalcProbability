@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">CalcProbability</string>
+    <string name="app_name">確率計算アプリ</string>
+    <string name="data">A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM\nN\nO\nP\nQ\nR\nS\nT\nU\nV\nW\nX\nY\nZ</string>
+    <string name="bar">\n-------------------------------------------------------------\n</string>
+    <string name="dlg_delete_title">データ削除</string>
+    <string name="dlg_delete_message">"OKを押すとすべてのデータが削除されます。データを削除しますか？"</string>
+    <string name="dlg_editing_title">データ編集</string>
+    <string name="dlg_editing_message">"「5月7日 10/10」のデータを追加したい場合「5,7,10,10」と入力してください。すでに存在する日付の場合、上書きされます。"</string>
+    <string name="today">今日の\nデータ\n追加</string>
 </resources>
