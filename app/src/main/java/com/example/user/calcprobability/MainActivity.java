@@ -3,10 +3,10 @@ package com.example.user.calcprobability;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,7 +17,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView sumProbability;
     private TextView tmpProbability;
     private TextView scrollTextView;
-    private EditText editView;
+    private EditText editView_delete;
+    private EditText editView_editing;
 
     private Button buttonNumeratorAdd;
     private Button buttonDenominatorAdd;
@@ -40,10 +43,18 @@ public class MainActivity extends AppCompatActivity {
     private Button delete;
     private Button today;
 
-    private AlertDialog.Builder dlg_delete;
+    private AlertDialog.Builder dlg_delete_all;
+    private AlertDialog.Builder dlg_delete_piece;
+    private AlertDialog.Builder dlg_delete_choice;
     private AlertDialog.Builder dlg_editing;
 
-    private String fileName = "data.txt";
+    private  AlertDialog dlg_delete_all_create;
+    private  AlertDialog dlg_delete_piece_create;
+    private  AlertDialog dlg_delete_choice_create;
+    private  AlertDialog dlg_editing_create;
+
+    private final String fileName = "data.txt";
+    private final String[] items_delete = {"一部削除", "全削除"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,42 +66,140 @@ public class MainActivity extends AppCompatActivity {
         sumProbability = (TextView)findViewById(R.id.sumProbability);
         tmpProbability = (TextView)findViewById(R.id.tmpProbability);
         scrollTextView = (TextView)findViewById(R.id.scrollTextView);
-        editView = new EditText(MainActivity.this);
+        editView_delete = new EditText(MainActivity.this);
+        editView_editing = new EditText(MainActivity.this);
 
         displaySum();
         displayUI();
         updateDataFromFile(fileName);
 
-        dlg_delete = new AlertDialog.Builder(this);
-        dlg_delete.setTitle(R.string.dlg_delete_title);
-        dlg_delete.setMessage(R.string.dlg_delete_message);
-        dlg_delete.setPositiveButton(
+        // ダイアログ設定
+        dlg_delete_all = new AlertDialog.Builder(this);
+        dlg_delete_all.setTitle(R.string.dlg_delete_all_title);
+        dlg_delete_all.setMessage(R.string.dlg_delete_all_message);
+        dlg_delete_all.setPositiveButton(
                 "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // OK ボタンクリック処理
-                        deleteFile(fileName);
+                        saveNewFile(fileName, null);
                         updateDataFromFile(fileName);
                     }
                 });
-        dlg_delete.setNegativeButton(
+        dlg_delete_all.setNegativeButton(
                 "Cancel",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Cancel ボタンクリック処理
                     }
                 });
+        dlg_delete_all_create = dlg_delete_all.create();
+
+        dlg_delete_piece = new AlertDialog.Builder(MainActivity.this);
+        dlg_delete_piece.setTitle(R.string.dlg_delete_piece_title);
+        dlg_delete_piece.setMessage(R.string.dlg_delete_piece_message);
+        dlg_delete_piece.setView(editView_delete);
+        dlg_delete_piece.setPositiveButton(
+                "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // OK ボタンクリック処理
+                        String str = editView_delete.getText().toString();
+                        String[] strSplit = str.split(",");
+                        if( strSplit.length != 2 ) return;
+                        try{
+                            FileInputStream fin = openFileInput(fileName);
+                            BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
+                            String lineBuffer;
+                            List<String> listLineBuffer = new ArrayList<String>();
+                            while( (lineBuffer = reader.readLine()) != null ) {
+                                String[] lineBufferSplit = lineBuffer.split(",");
+                                if(     Integer.parseInt(lineBufferSplit[0]) == Integer.parseInt(strSplit[0]) &&
+                                        Integer.parseInt(lineBufferSplit[1]) == Integer.parseInt(strSplit[1])   )
+                                            continue;
+                                listLineBuffer.add(lineBuffer);
+                            }
+                            saveNewFile(fileName, null);
+                            for(int i = 0; i < listLineBuffer.size(); i++){
+                                saveAddFile(fileName, listLineBuffer.get(i) + "\n");
+                            }
+
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        updateDataFromFile(fileName);
+                        editView_delete.getEditableText().clear();
+                    }
+                });
+        dlg_delete_piece.setNegativeButton(
+                "Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Cancel ボタンクリック処理
+                        editView_delete.getEditableText().clear();
+                    }
+                });
+        dlg_delete_piece_create = dlg_delete_piece.create();
+
+        dlg_delete_choice = new AlertDialog.Builder(MainActivity.this);
+        dlg_delete_choice.setItems(items_delete, new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which == 0)          dlg_delete_piece_create.show();
+                else if(which == 1)     dlg_delete_all_create.show();
+                else;
+            }
+        });
+        dlg_delete_choice_create = dlg_delete_choice.create();
 
         dlg_editing = new AlertDialog.Builder(MainActivity.this);
         dlg_editing.setTitle(R.string.dlg_editing_title);
         dlg_editing.setMessage(R.string.dlg_editing_message);
-        dlg_editing.setView(editView);
+        dlg_editing.setView(editView_editing);
         dlg_editing.setPositiveButton(
                 "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // OK ボタンクリック処理
+                        boolean flag = true;
+                        String str = editView_editing.getText().toString();
+                        String[] strSplit = str.split(",");
+                        if( strSplit.length != 4 ){
+                            editView_editing.getEditableText().clear();
+                            return;
+                        }
 
+                        try{
+                            FileInputStream fin = openFileInput(fileName);
+                            BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
+                            String lineBuffer;
+                            List<String> listLineBuffer = new ArrayList<String>();
+                            while( (lineBuffer = reader.readLine()) != null ) {
+                                String[] lineBufferSplit = lineBuffer.split(",");
+                                if(     Integer.parseInt(lineBufferSplit[0]) == Integer.parseInt(strSplit[0]) &&
+                                        Integer.parseInt(lineBufferSplit[1]) == Integer.parseInt(strSplit[1])   ){
+                                            listLineBuffer.add(strSplit[0] + "," + strSplit[1] + "," + strSplit[2] + "," + strSplit[3] + ",");
+                                            flag = false;
+                                }else{
+                                            listLineBuffer.add(lineBuffer);
+                                }
+                            }
+                            if( flag ) listLineBuffer.add(strSplit[0] + "," + strSplit[1] + "," + strSplit[2] + "," + strSplit[3] + ",");
+
+                            saveNewFile(fileName, null);
+                            for(int i = 0; i < listLineBuffer.size(); i++){
+                                saveAddFile(fileName, listLineBuffer.get(i) + "\n");
+                            }
+
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        updateDataFromFile(fileName);
+                        editView_editing.getEditableText().clear();
                     }
                 });
         dlg_editing.setNegativeButton(
@@ -98,8 +207,11 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Cancel ボタンクリック処理
+                        editView_editing.getEditableText().clear();
                     }
                 });
+        dlg_editing_create = dlg_editing.create();
+
 
         // ボタンを設定
         buttonNumeratorAdd = findViewById(R.id.buttonNumeratorAdd);
@@ -142,26 +254,32 @@ public class MainActivity extends AppCompatActivity {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //sumNumerator += tmpNumerator;
-                //sumDenominator += tmpDenominator;
-/*
+
                 try{
                     FileInputStream fin = openFileInput(fileName);
-                    FileOutputStream fout = openFileOutput(fileName, Context.MODE_PRIVATE|MODE_APPEND);
                     BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
                     String lineBuffer;
+                    List<String> listLineBuffer = new ArrayList<String>();
                     while( (lineBuffer = reader.readLine()) != null ) {
-
+                        listLineBuffer.add(lineBuffer);
                     }
-                    int newNumerator = tmpNumerator + getNumeratorOfFile(lineBuffer);
-                    int newDenominator = tmpDenominator + getDenominatorOfFile(lineBuffer);
-                    String newText = getDayOfFile(lineBuffer) + newNumerator + "," + newDenominator;
-                    fout.write(newText.getBytes());
+                    if(listLineBuffer.size() != 0) {
+                        String str = listLineBuffer.get(listLineBuffer.size() - 1);
+                        String[] strSplit = str.split(",");
+                        String text = strSplit[0] + "," + strSplit[1] + "," + (tmpNumerator + Integer.parseInt(strSplit[2])) + "," + (tmpDenominator + Integer.parseInt(strSplit[3])) + ",";
+                        listLineBuffer.set(listLineBuffer.size() - 1, text);
+                        saveNewFile(fileName, null);
+                        for(int i = 0; i < listLineBuffer.size(); i++){
+                            saveAddFile(fileName, listLineBuffer.get(i) + "\n");
+                        }
+                    }
+
                     reader.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                updateDataFromFile(fileName);*/
+                updateDataFromFile(fileName);
+                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(50);
             }
         });
 
@@ -169,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
         editing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dlg_editing.create().show();
+                dlg_editing_create.show();
             }
         });
 
@@ -177,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dlg_delete.create().show();
+                dlg_delete_choice_create.show();
             }
         });
 
@@ -188,8 +306,10 @@ public class MainActivity extends AppCompatActivity {
                 Calendar cal = Calendar.getInstance();
                 int month = cal.get(Calendar.MONTH) + 1;
                 int day = cal.get(Calendar.DAY_OF_MONTH);
-                String text = month + "," + day + "," + 0 + "," + 0 + "\n";
-                saveFile(fileName, text);
+                if( checkData(fileName, month + "," + day + ",") ) return;
+
+                String text = month + "," + day + "," + 0 + "," + 0 + ",\n";
+                saveAddFile(fileName, text);
                 updateDataFromFile(fileName);
             }
         });
@@ -214,12 +334,11 @@ public class MainActivity extends AppCompatActivity {
         sumProbability.setText("合計:" + sumNumerator + "/" + sumDenominator + "  " + String.format("%.2f", probability) + "%");
     }
 
-    // ファイルを保存
-    private void saveFile(String file, String str) {
-
+    // ファイルを追加保存
+    private void saveAddFile(String file, String str) {
         try{
             FileOutputStream fout = openFileOutput(file, Context.MODE_PRIVATE|MODE_APPEND);
-            fout.write(str.getBytes());
+            if(str != null) fout.write(str.getBytes());
             fout.flush();
             fout.close();
         } catch (IOException e) {
@@ -227,12 +346,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ファイルを読み出し
+    // ファイルを新規保存
+    private void saveNewFile(String file, String str) {
+        try{
+            FileOutputStream fout = openFileOutput(file, Context.MODE_PRIVATE);
+            if(str != null) fout.write(str.getBytes());
+            fout.flush();
+            fout.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ファイルを読み込んで出力
     private void updateDataFromFile(String file) {
         String text = "";
-        String sumNumeratorString = "";
-        String sumDenominatorString = "";
-        String[] template = {"月", "日  ", "/"};
+        int calcNumerator = 0;
+        int calcDenominator = 0;
 
         try{
             FileInputStream fin = openFileInput(file);
@@ -241,65 +371,47 @@ public class MainActivity extends AppCompatActivity {
             while( (lineBuffer = reader.readLine()) != null ) {
                 text = getResources().getString(R.string.bar) + text;
                 // lineBufferから表示用文字列を生成
-                for(int i = 0; i < 3; i++){
-                    lineBuffer = lineBuffer.replaceFirst(",", template[i]);
-                }
-                text = lineBuffer + text;
-                // lineBufferから分母と分子を計算
-                //sumNumerator += getNumeratorOfFile(lineBuffer);
-                //sumDenominator += getDenominatorOfFile(lineBuffer);
+                String[] split = lineBuffer.split(",", 0);
+                text = split[0] + "月" + split[1] + "日：" + split[2] + "/" + split[3] + text;
+
+                // 分子と分母を計算
+                calcNumerator += Integer.parseInt(split[2]);
+                calcDenominator += Integer.parseInt(split[3]);
             }
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        sumNumerator = calcNumerator;
+        sumDenominator = calcDenominator;
         scrollTextView.setText(text);
         displaySum();
     }
 
-    // lineBufferから分子の値を返す。
-    private int getNumeratorOfFile(String lineBuffer){
-        String sumNumeratorString = "";
+    // データがすでに存在するか確認
+    private boolean checkData(String file, String date){
+        String[] dateSplit = date.split(",");
 
-        for(int i = 0, index = 0; i < lineBuffer.length(); i++){
-            if( lineBuffer.charAt(i) == ',' ){
-                index++;
-                continue;
+        try{
+            FileInputStream fin = openFileInput(file);
+            BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
+            String lineBuffer;
+            while( (lineBuffer = reader.readLine()) != null ) {
+                String[] lineBufferSplit = lineBuffer.split(",");
+                if(     Integer.parseInt(lineBufferSplit[0]) == Integer.parseInt(dateSplit[0]) &&
+                        Integer.parseInt(lineBufferSplit[1]) == Integer.parseInt(dateSplit[1])  )
+                            return true;
             }
-            if( index == 3 ){
-                sumNumeratorString = sumNumeratorString.concat( String.valueOf(lineBuffer.charAt(i)) );
-            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        Log.d(sumNumeratorString,"debug");
-        return Integer.parseInt(sumNumeratorString);
+
+        return false;
     }
 
-    // lineBufferから分母の値を返す。
-    private int getDenominatorOfFile(String lineBuffer){
-        String sumDenominatorString = "";
 
-        for(int i = 0, index = 0; i < lineBuffer.length(); i++){
-            if( lineBuffer.charAt(i) == ',' ) index++;
-            if(index == 4){
-                if( lineBuffer.charAt(i) == ','|| lineBuffer.charAt(i) == '\n' ) continue;
-                sumDenominatorString = sumDenominatorString.concat( String.valueOf(lineBuffer.charAt(i)) );
-            }
-        }
-        return Integer.parseInt(sumDenominatorString);
-    }
-
-    // lineBufferから日付を返す。
-    private String getDayOfFile(final String lineBuffer){
-        String day = "";
-
-        for(int i = 0, index = 0; i < lineBuffer.length(); i++){
-            if( lineBuffer.charAt(i) == ',' ) index++;
-            if(index < 3){
-                day = day.concat( String.valueOf(lineBuffer.charAt(i)) );
-            }
-        }
-        return day;
-    }
 
 }
