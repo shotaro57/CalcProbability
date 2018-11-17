@@ -106,7 +106,14 @@ public class MainActivity extends AppCompatActivity {
                         // OK ボタンクリック処理
                         String str = editView_delete.getText().toString();
                         String[] strSplit = str.split(",");
-                        if( strSplit.length != 2 ) return;
+                        if( strSplit.length != 2 ){
+                            editView_delete.getEditableText().clear();
+                            return;
+                        }
+                        if( ! isInteger(strSplit[0]) || ! isInteger(strSplit[1]) ){
+                            editView_delete.getEditableText().clear();
+                            return;
+                        }
                         try{
                             FileInputStream fin = openFileInput(fileName);
                             BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
@@ -169,6 +176,11 @@ public class MainActivity extends AppCompatActivity {
                         if( strSplit.length != 4 ){
                             editView_editing.getEditableText().clear();
                             return;
+                        }
+                        if(     ! isInteger(strSplit[0]) || ! isInteger(strSplit[1]) ||
+                                ! isInteger(strSplit[2]) || ! isInteger(strSplit[3])    ){
+                                    editView_editing.getEditableText().clear();
+                                    return;
                         }
 
                         try{
@@ -410,6 +422,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return false;
+    }
+
+    private boolean isInteger(String str){
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
 
