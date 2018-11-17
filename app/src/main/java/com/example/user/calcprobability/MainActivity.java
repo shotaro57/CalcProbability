@@ -3,6 +3,7 @@ package com.example.user.calcprobability;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView sumProbability;
     private TextView tmpProbability;
     private TextView scrollTextView;
-    private EditText editView;
+    private EditText editView_delete;
+    private EditText editView_editing;
 
     private Button buttonNumeratorAdd;
     private Button buttonDenominatorAdd;
@@ -64,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
         sumProbability = (TextView)findViewById(R.id.sumProbability);
         tmpProbability = (TextView)findViewById(R.id.tmpProbability);
         scrollTextView = (TextView)findViewById(R.id.scrollTextView);
-        editView = new EditText(MainActivity.this);
+        editView_delete = new EditText(MainActivity.this);
+        editView_editing = new EditText(MainActivity.this);
 
         displaySum();
         displayUI();
@@ -95,13 +98,13 @@ public class MainActivity extends AppCompatActivity {
         dlg_delete_piece = new AlertDialog.Builder(MainActivity.this);
         dlg_delete_piece.setTitle(R.string.dlg_delete_piece_title);
         dlg_delete_piece.setMessage(R.string.dlg_delete_piece_message);
-        dlg_delete_piece.setView(editView);
+        dlg_delete_piece.setView(editView_delete);
         dlg_delete_piece.setPositiveButton(
                 "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // OK ボタンクリック処理
-                        String str = editView.getText().toString();
+                        String str = editView_delete.getText().toString();
                         String[] strSplit = str.split(",");
                         if( strSplit.length != 2 ) return;
                         try{
@@ -127,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         updateDataFromFile(fileName);
-                        editView.getEditableText().clear();
+                        editView_delete.getEditableText().clear();
                     }
                 });
         dlg_delete_piece.setNegativeButton(
@@ -135,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Cancel ボタンクリック処理
-                        editView.getEditableText().clear();
+                        editView_delete.getEditableText().clear();
                     }
                 });
         dlg_delete_piece_create = dlg_delete_piece.create();
@@ -154,13 +157,49 @@ public class MainActivity extends AppCompatActivity {
         dlg_editing = new AlertDialog.Builder(MainActivity.this);
         dlg_editing.setTitle(R.string.dlg_editing_title);
         dlg_editing.setMessage(R.string.dlg_editing_message);
-        dlg_editing.setView(editView);
+        dlg_editing.setView(editView_editing);
         dlg_editing.setPositiveButton(
                 "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // OK ボタンクリック処理
-                        editView.getEditableText().clear();
+                        boolean flag = true;
+                        String str = editView_editing.getText().toString();
+                        String[] strSplit = str.split(",");
+                        if( strSplit.length != 4 ){
+                            editView_editing.getEditableText().clear();
+                            return;
+                        }
+
+                        try{
+                            FileInputStream fin = openFileInput(fileName);
+                            BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
+                            String lineBuffer;
+                            List<String> listLineBuffer = new ArrayList<String>();
+                            while( (lineBuffer = reader.readLine()) != null ) {
+                                String[] lineBufferSplit = lineBuffer.split(",");
+                                if(     Integer.parseInt(lineBufferSplit[0]) == Integer.parseInt(strSplit[0]) &&
+                                        Integer.parseInt(lineBufferSplit[1]) == Integer.parseInt(strSplit[1])   ){
+                                            listLineBuffer.add(strSplit[0] + "," + strSplit[1] + "," + strSplit[2] + "," + strSplit[3] + ",");
+                                            flag = false;
+                                }else{
+                                            listLineBuffer.add(lineBuffer);
+                                }
+                            }
+                            if( flag ) listLineBuffer.add(strSplit[0] + "," + strSplit[1] + "," + strSplit[2] + "," + strSplit[3] + ",");
+
+                            saveNewFile(fileName, null);
+                            for(int i = 0; i < listLineBuffer.size(); i++){
+                                saveAddFile(fileName, listLineBuffer.get(i) + "\n");
+                            }
+
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        updateDataFromFile(fileName);
+                        editView_editing.getEditableText().clear();
                     }
                 });
         dlg_editing.setNegativeButton(
@@ -168,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Cancel ボタンクリック処理
-                        editView.getEditableText().clear();
+                        editView_editing.getEditableText().clear();
                     }
                 });
         dlg_editing_create = dlg_editing.create();
@@ -240,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 updateDataFromFile(fileName);
-
+                ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(50);
             }
         });
 
@@ -360,7 +399,9 @@ public class MainActivity extends AppCompatActivity {
             String lineBuffer;
             while( (lineBuffer = reader.readLine()) != null ) {
                 String[] lineBufferSplit = lineBuffer.split(",");
-                if( Integer.parseInt(lineBufferSplit[0]) == Integer.parseInt(dateSplit[0]) && Integer.parseInt(lineBufferSplit[1]) == Integer.parseInt(dateSplit[1]) ) return true;
+                if(     Integer.parseInt(lineBufferSplit[0]) == Integer.parseInt(dateSplit[0]) &&
+                        Integer.parseInt(lineBufferSplit[1]) == Integer.parseInt(dateSplit[1])  )
+                            return true;
             }
 
             reader.close();
