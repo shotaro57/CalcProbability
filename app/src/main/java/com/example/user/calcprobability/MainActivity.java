@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -47,6 +46,11 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog.Builder dlg_delete_choice;
     private AlertDialog.Builder dlg_editing;
 
+    private  AlertDialog dlg_delete_all_create;
+    private  AlertDialog dlg_delete_piece_create;
+    private  AlertDialog dlg_delete_choice_create;
+    private  AlertDialog dlg_editing_create;
+
     private final String fileName = "data.txt";
     private final String[] items_delete = {"一部削除", "全削除"};
 
@@ -86,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                         // Cancel ボタンクリック処理
                     }
                 });
+        dlg_delete_all_create = dlg_delete_all.create();
 
         dlg_delete_piece = new AlertDialog.Builder(MainActivity.this);
         dlg_delete_piece.setTitle(R.string.dlg_delete_piece_title);
@@ -96,7 +101,33 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // OK ボタンクリック処理
+                        String str = editView.getText().toString();
+                        String[] strSplit = str.split(",");
+                        if( strSplit.length != 2 ) return;
+                        try{
+                            FileInputStream fin = openFileInput(fileName);
+                            BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
+                            String lineBuffer;
+                            List<String> listLineBuffer = new ArrayList<String>();
+                            while( (lineBuffer = reader.readLine()) != null ) {
+                                String[] lineBufferSplit = lineBuffer.split(",");
+                                if(     Integer.parseInt(lineBufferSplit[0]) == Integer.parseInt(strSplit[0]) &&
+                                        Integer.parseInt(lineBufferSplit[1]) == Integer.parseInt(strSplit[1])   )
+                                            continue;
+                                listLineBuffer.add(lineBuffer);
+                            }
+                            saveNewFile(fileName, null);
+                            for(int i = 0; i < listLineBuffer.size(); i++){
+                                saveAddFile(fileName, listLineBuffer.get(i) + "\n");
+                            }
 
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        updateDataFromFile(fileName);
+                        editView.getEditableText().clear();
                     }
                 });
         dlg_delete_piece.setNegativeButton(
@@ -104,18 +135,21 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Cancel ボタンクリック処理
+                        editView.getEditableText().clear();
                     }
                 });
+        dlg_delete_piece_create = dlg_delete_piece.create();
 
         dlg_delete_choice = new AlertDialog.Builder(MainActivity.this);
         dlg_delete_choice.setItems(items_delete, new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(which == 0)          dlg_delete_piece.create().show();
-                else if(which == 1)     dlg_delete_all.create().show();
+                if(which == 0)          dlg_delete_piece_create.show();
+                else if(which == 1)     dlg_delete_all_create.show();
                 else;
             }
         });
+        dlg_delete_choice_create = dlg_delete_choice.create();
 
         dlg_editing = new AlertDialog.Builder(MainActivity.this);
         dlg_editing.setTitle(R.string.dlg_editing_title);
@@ -126,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // OK ボタンクリック処理
-
+                        editView.getEditableText().clear();
                     }
                 });
         dlg_editing.setNegativeButton(
@@ -134,10 +168,10 @@ public class MainActivity extends AppCompatActivity {
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // Cancel ボタンクリック処理
+                        editView.getEditableText().clear();
                     }
                 });
-
-
+        dlg_editing_create = dlg_editing.create();
 
 
         // ボタンを設定
@@ -197,7 +231,6 @@ public class MainActivity extends AppCompatActivity {
                         listLineBuffer.set(listLineBuffer.size() - 1, text);
                         saveNewFile(fileName, null);
                         for(int i = 0; i < listLineBuffer.size(); i++){
-                            //Log.d(listLineBuffer.get(i),"debug");
                             saveAddFile(fileName, listLineBuffer.get(i) + "\n");
                         }
                     }
@@ -215,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         editing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dlg_editing.create().show();
+                dlg_editing_create.show();
             }
         });
 
@@ -223,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dlg_delete_choice.create().show();
+                dlg_delete_choice_create.show();
             }
         });
 
@@ -234,7 +267,9 @@ public class MainActivity extends AppCompatActivity {
                 Calendar cal = Calendar.getInstance();
                 int month = cal.get(Calendar.MONTH) + 1;
                 int day = cal.get(Calendar.DAY_OF_MONTH);
-                String text = month + "," + day + "," + 1 + "," + 2 + ",\n";
+                if( checkData(fileName, month + "," + day + ",") ) return;
+
+                String text = month + "," + day + "," + 0 + "," + 0 + ",\n";
                 saveAddFile(fileName, text);
                 updateDataFromFile(fileName);
             }
@@ -313,6 +348,27 @@ public class MainActivity extends AppCompatActivity {
         sumDenominator = calcDenominator;
         scrollTextView.setText(text);
         displaySum();
+    }
+
+    // データがすでに存在するか確認
+    private boolean checkData(String file, String date){
+        String[] dateSplit = date.split(",");
+
+        try{
+            FileInputStream fin = openFileInput(file);
+            BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
+            String lineBuffer;
+            while( (lineBuffer = reader.readLine()) != null ) {
+                String[] lineBufferSplit = lineBuffer.split(",");
+                if( Integer.parseInt(lineBufferSplit[0]) == Integer.parseInt(dateSplit[0]) && Integer.parseInt(lineBufferSplit[1]) == Integer.parseInt(dateSplit[1]) ) return true;
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
 
