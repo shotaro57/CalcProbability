@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">確率計算アプリ</string>
     <string name="data">A\nB\nC\nD\nE\nF\nG\nH\nI\nJ\nK\nL\nM\nN\nO\nP\nQ\nR\nS\nT\nU\nV\nW\nX\nY\nZ</string>
-    <string name="bar">\n----------------------------------------------------------</string>
+    <string name="bar">\n__________________________________</string>
     <string name="dlg_delete_all_title">データ全削除</string>
     <string name="dlg_delete_piece_title">一部のデータを削除</string>
     <string name="dlg_delete_all_message">"OKを押すとすべてのデータが削除されます。データを削除しますか？"</string>
