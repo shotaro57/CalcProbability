@@ -417,6 +417,7 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    // 文字列がint型に変換できるか確認
     private boolean isInteger(String str){
         try {
             Integer.parseInt(str);
@@ -426,6 +427,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // 確率を計算する
     private double calcProbability(double numerator, double denominator){
         if(denominator == 0.0){
             return 0.0;
