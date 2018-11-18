@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.os.Vibrator;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -263,9 +265,19 @@ public class MainActivity extends AppCompatActivity {
         });
 
         update = findViewById(R.id.update);
+        update.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                tmpProbability.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.tmp_probability_style2, null));
+                tmpProbability.setTextColor(getResources().getColor(R.color.tmpProbabilityColor2));
+                return false;
+            }
+        });
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                tmpProbability.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.tmp_probability_style, null));
+                tmpProbability.setTextColor(getResources().getColor(R.color.tmpProbabilityColor));
 
                 try{
                     FileInputStream fin = openFileInput(fileName);

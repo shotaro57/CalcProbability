@@ -6,4 +6,5 @@
     <color name="UIBackground">#888888</color>
 
     <color name="tmpProbabilityColor">#004488</color>
+    <color name="tmpProbabilityColor2">#880044</color>
 </resources>
