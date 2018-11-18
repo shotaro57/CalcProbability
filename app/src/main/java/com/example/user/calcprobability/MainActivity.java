@@ -336,14 +336,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displaySum(){
-        double probability;
-
-        if(sumDenominator == 0){
-            probability = 0.0;
-        }else{
-            probability = (double)sumNumerator/(double)sumDenominator*100.0;
-        }
-        sumProbability.setText("合計:" + sumNumerator + "/" + sumDenominator + "  " + String.format("%.2f", probability) + "%");
+        sumProbability.setText("合計:" + sumNumerator + "/" + sumDenominator + "  " + String.format("%.2f", calcProbability(sumNumerator, sumDenominator)) + "%");
     }
 
     // ファイルを追加保存
@@ -381,9 +374,9 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
             String lineBuffer;
             while( (lineBuffer = reader.readLine()) != null ) {
-                text = getResources().getString(R.string.bar) + text;
                 // lineBufferから表示用文字列を生成
                 String[] split = lineBuffer.split(",", 0);
+                text = getResources().getString(R.string.bar) + String.format("%.2f", calcProbability(Integer.parseInt(split[2]), Integer.parseInt(split[3]))) + "%\n" + text;
                 text = split[0] + "月" + split[1] + "日：" + split[2] + "/" + split[3] + text;
 
                 // 分子と分母を計算
@@ -433,6 +426,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    private double calcProbability(double numerator, double denominator){
+        if(denominator == 0.0){
+            return 0.0;
+        }else{
+            return numerator/denominator*100.0;
+        }
+    }
 
 }
