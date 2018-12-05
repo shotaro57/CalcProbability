@@ -65,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
         // 縦画面
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        //saveNewFile(fileName, null);
+
         sumProbability = (TextView)findViewById(R.id.sumProbability);
         tmpProbability = (TextView)findViewById(R.id.tmpProbability);
         scrollTextView = (TextView)findViewById(R.id.scrollTextView);
@@ -297,6 +299,10 @@ public class MainActivity extends AppCompatActivity {
                             saveAddFile(fileName, listLineBuffer.get(i) + "\n");
                         }
                     }
+
+                    tmpNumerator = 0;
+                    tmpDenominator = 0;
+                    displayUI();
 
                     reader.close();
                 } catch (IOException e) {
