@@ -124,16 +124,24 @@
                         android:text="update" />
                 </LinearLayout>
                 <LinearLayout
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:layout_width="0dip"
                     android:layout_height="fill_parent"
                     android:layout_weight="1" >
                     <Button
                         android:id="@+id/today"
                         android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
                         android:layout_gravity="center"
                         android:text="@string/today" />
+                    <Button
+                        android:id="@+id/graph"
+                        android:layout_width="fill_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:text="@string/graph" />
 
                 </LinearLayout>
 

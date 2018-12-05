@@ -2,6 +2,7 @@ package com.example.user.calcprobability;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Vibrator;
 import android.support.v4.content.res.ResourcesCompat;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private Button editing;
     private Button delete;
     private Button today;
+    private Button graph;
 
     private AlertDialog.Builder dlg_delete_all;
     private AlertDialog.Builder dlg_delete_piece;
@@ -341,6 +343,15 @@ public class MainActivity extends AppCompatActivity {
                 String text = month + "," + day + "," + 0 + "," + 0 + ",\n";
                 saveAddFile(fileName, text);
                 updateDataFromFile(fileName);
+            }
+        });
+
+        graph = findViewById(R.id.graph);
+        graph.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplication(), GraphActivity.class);
+                startActivity(intent);
             }
         });
 
