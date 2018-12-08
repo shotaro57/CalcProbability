@@ -10,4 +10,5 @@
     <string name="dlg_editing_message">"「5月7日 10/10」のデータを追加したい場合「5,7,10,10」と入力してください。すでに存在する日付の場合、上書きされます。"</string>
     <string name="today">今日の\nデータ\n追加</string>
     <string name="graph">グラフ\n表示</string>
+    <string name="graph_title">グラフ</string>
 </resources>

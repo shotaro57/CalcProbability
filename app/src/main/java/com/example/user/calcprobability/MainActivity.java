@@ -351,6 +351,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplication(), GraphActivity.class);
+                intent.putExtra("file_name", fileName);
                 startActivity(intent);
             }
         });
@@ -464,5 +465,6 @@ public class MainActivity extends AppCompatActivity {
             return numerator/denominator*100.0;
         }
     }
+
 
 }
