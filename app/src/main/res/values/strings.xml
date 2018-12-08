@@ -8,6 +8,7 @@
     <string name="dlg_delete_piece_message">"「5月7日 10/10」のデータを削除したい場合「5,7」と入力してください。存在しない日付の場合、何も変化しません。"</string>
     <string name="dlg_editing_title">データ編集</string>
     <string name="dlg_editing_message">"「5月7日 10/10」のデータを追加したい場合「5,7,10,10」と入力してください。すでに存在する日付の場合、上書きされます。"</string>
+    <string name="dlg_graph_message">"データが1個以下、全てのデータの分母が0、これらの場合この機能は使えません。"</string>
     <string name="today">今日の\nデータ\n追加</string>
     <string name="graph">グラフ\n表示</string>
     <string name="graph_title">グラフ</string>

@@ -51,11 +51,13 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog.Builder dlg_delete_piece;
     private AlertDialog.Builder dlg_delete_choice;
     private AlertDialog.Builder dlg_editing;
+    private AlertDialog.Builder dlg_graph;
 
     private  AlertDialog dlg_delete_all_create;
     private  AlertDialog dlg_delete_piece_create;
     private  AlertDialog dlg_delete_choice_create;
     private  AlertDialog dlg_editing_create;
+    private  AlertDialog dlg_graph_create;
 
     private final String fileName = "data.txt";
     private final String[] items_delete = {"一部削除", "全削除"};
@@ -230,6 +232,10 @@ public class MainActivity extends AppCompatActivity {
                 });
         dlg_editing_create = dlg_editing.create();
 
+        dlg_graph = new AlertDialog.Builder(this);
+        dlg_graph.setMessage(R.string.dlg_graph_message);
+        dlg_graph_create = dlg_graph.create();
+
 
         // ボタンを設定
         buttonNumeratorAdd = findViewById(R.id.buttonNumeratorAdd);
@@ -350,9 +356,13 @@ public class MainActivity extends AppCompatActivity {
         graph.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplication(), GraphActivity.class);
-                intent.putExtra("file_name", fileName);
-                startActivity(intent);
+                if( checkOutputGraph(fileName) ){
+                    Intent intent = new Intent(getApplication(), GraphActivity.class);
+                    intent.putExtra("file_name", fileName);
+                    startActivity(intent);
+                }else{
+                    dlg_graph_create.show();
+                }
             }
         });
 
@@ -464,6 +474,31 @@ public class MainActivity extends AppCompatActivity {
         }else{
             return numerator/denominator*100.0;
         }
+    }
+
+    // グラフが表示できるかチェック（データが2個以上）
+    private boolean checkOutputGraph(String file){
+        int dataCount = 0;
+        boolean flag = false;
+
+        try{
+            FileInputStream fin = openFileInput(file);
+            BufferedReader reader= new BufferedReader(new InputStreamReader(fin, "UTF-8"));
+            String lineBuffer;
+            while( (lineBuffer = reader.readLine()) != null ) {
+                dataCount++;
+                String[] split = lineBuffer.split(",");
+                if( Integer.parseInt(split[3]) != 0 ) flag = true;
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if( dataCount >= 2 && flag )    return true;
+        else                            return false;
+
     }
 
 
